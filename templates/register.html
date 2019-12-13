@@ -1,13 +1,12 @@
 {% extends "layout.html" %}
-{{ super() }}
 
-{% block title %}Login Page{% endblock %}
+
+{% block title %}Register Page{% endblock %}
 
 {% block content %}
-
 <div class="container">
   <div class="page-header">
-    <h1>Login</h1>
+    <h1>Register</h1>
 
     {% for message in get_flashed_messages() %}
     <div class="alert alert-warning">
@@ -19,10 +18,9 @@
   </div>
   <div class="col-md-4">
     {{ wtf.quick_form(form) }}
-    <hr>
-    <a href="/register">Register new user</a>
+    <hr/>
+    <a href="/login">Login existing user</a>
   </div>
-
 </div>
 
 {% endblock %}
