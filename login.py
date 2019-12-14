@@ -3,9 +3,8 @@ from flask import Flask
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, UserMixin
-from flask_table import Table, Col
+from flask_table import Table, Col, ButtonCol
 from flask import render_template, redirect, request, url_for, flash
-
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
@@ -34,6 +33,9 @@ class RegistrationForm(FlaskForm):
 # the following classes are for flask-table 
 class InternshipTable(Table):
     classes = ['table', 'table-hover']
+    _id = Col('_id', show=False)
+    remove = ButtonCol('','remove', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-trash'})
+    edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'})
     company = Col('Company')
     position = Col('Position')
     location = Col('Location')
@@ -49,7 +51,7 @@ class Internship(object):
         self.notes = notes
         self.documents = documents
   
-internships = [] 
+internships = []
 user = None
 docs = []
 
@@ -60,11 +62,8 @@ class InternshipForm(FlaskForm):
     notes = StringField('Notes', [Length(min=1, max=1500)])
     documents = StringField('Documents', [Length(min=1, max=60)])
     submit = SubmitField('Submit')
-     
-internships = [Internship('Amazon', 'Software Engineering Intern', 'Seattle, WA', notes="Applied via Handshake, received initial coding challenge, completed it, waiting for response"),
-        Internship('Col2'), 
-              Internship('Microsoft', 'Project Manager', notes="Unlikely")]
-#internships = list(db.internships.find())
+
+
 #Populate the table
 internships_table = InternshipTable(internships)
 
@@ -167,16 +166,53 @@ def internships():
              notes = form.notes.data, 
              documents = form.documents.data 
              )
-        print("this is the new_internship: " + str(new_internship))
         db.internships.insert_one(new_internship)
+        form.position.data = ''
+        form.company.data = ''
+        form.location.data = ''
+        form.notes.data = ''
+        form.documents.data = '' 
     internships = list(db.internships.find())
-    print(internships)
     for internship in internships: 
-        del internship['_id']
-    print(internships)
-    print(user)
+        internship['_id'] = str(internship['_id'])
     table = InternshipTable(internships)
     return render_template('internships.html', form=form, table=table)
+
+@app.route('/remove/<string:_id>', methods=['GET', 'POST'])
+def remove(_id):
+    db.internships.remove({'_id' : ObjectId(_id)})
+    return redirect(url_for('internships'))
+
+@app.route('/edit/<string:_id>', methods=['GET', 'POST'])
+def edit(_id):
+    query = db.internships.find_one({'_id' : ObjectId(_id)})
+    print(query);
+    form = InternshipForm(method='Post')
+    if form.validate_on_submit():
+        new_internship = dict(company = form.company.data, 
+             position = form.position.data, 
+             location = form.location.data, 
+             notes = form.notes.data, 
+             documents = form.documents.data 
+             )
+        db.internships.insert_one(new_internship)
+        db.internships.remove({'_id' : ObjectId(_id)})
+        form.position.data = ''
+        form.company.data = ''
+        form.location.data = ''
+        form.notes.data = ''
+        form.documents.data = ''
+        internships = list(db.internships.find())
+        for internship in internships: 
+            internship['_id'] = str(internship['_id'])
+        table = InternshipTable(internships)
+        return render_template('internships.html', form=form, table=table)
+    form.position.data = query['position']
+    form.company.data = query['company']
+    form.location.data = query['location']
+    form.notes.data = query['notes']
+    form.documents.data = query['documents']
+    return render_template('edit.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -226,6 +262,7 @@ def register():
             flash(str(e))
 
     return render_template('register.html', form=form)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

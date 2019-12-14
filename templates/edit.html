@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{{ super() }}
+
+
+{% block content %}
+
+<div class="container">
+  <h3>Edit Internship</h3>  
+ {{ wtf.quick_form(form) }}
+</div>
+
+{% endblock %}
