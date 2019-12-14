@@ -39,16 +39,16 @@
 {{ super() }}
 <script type="text/javascript">
     $(document).ready(function () {
-      
+
       let url = window.location;
-      
+
       if (url.pathname != '/login' && url.pathname != '/logout') {
         $('ul.nav a[href="'+ url +'"]').parent().addClass('active');
         $('ul.nav a').filter(function() {
           return this.href == url;
         }).parent().addClass('active');
       }
-      
+
       if (url.pathname === '/login' || url.pathname === '/register') {
         $('a.login-logout').text("Login")
       }

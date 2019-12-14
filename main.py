@@ -8,7 +8,7 @@ from flask_table import Table, Col, ButtonCol
 from flask import render_template, redirect, request, url_for, flash, session
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, validators
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_table import Table, Col
 from flask_pymongo import PyMongo
@@ -22,8 +22,11 @@ from werkzeug import secure_filename
 #from flask_uploads import UploadSet, configure_uploads,
 #G upload files
 class UploadForm(FlaskForm):
-    file = FileField()
-    #def __init__ (self, doc_id)
+    pdf = FileField(u'Select PDF')#[validators.regexp('*.pdf')])
+    def validate_pdf(form, field):
+        if field.data:
+            field.data = re.sub(r'[^a-z0-9_.-]','_', field.data)
+            #def __init__ (self, doc_id)
     #self.doc_id = request.form.get("")
 class LoginForm(FlaskForm):
     email_or_user = StringField('Email or username', validators=[DataRequired()])
@@ -167,7 +170,6 @@ class User(UserMixin):
         u.password_hash=doc['password_hash']
         u._id = doc['_id']
         return u
-
     def tomongo(self):
         q = {'email' : self.email,
            'name' : self.name, 'password_hash' : self.password_hash}
@@ -198,7 +200,6 @@ def load_user(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-
     if form.validate_on_submit():
         user = User.query(form.email_or_user.data)
 
@@ -273,27 +274,39 @@ def internships():
 #    return '.' in filename and \
 #        filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
 
-docNames = []
+coll = db.user_docs
 
 @app.route('/documents', methods = ['GET', 'POST'])
 @login_required
+# create a new user_docs for each internships
+#pdf_name
 def document_upload():
-    form = UploadForm()
+    form = UploadForm(method = 'POST')
     user_id = session.get('user_id')
-    if form.submit_data and form.validate_on_submit():
-        user_docs = dict(
-            user_id = ObjectId(use_id),
-            #need to store in database the file itself
-            name = form.file.data
-        )
-        filename = secure_filename(form.file.data.filename) # gets file names and makes it so that the file can be saved later on
-        docNames.append(filename) # list of fileNames
+    if request.method == 'POST':
+        file_name = form.pdf.data
+        if form.validate_on_submit():
+            user_docs = dict(
+                user_id = ObjectId(user_id),
+                name = file_name
+                )
+            with open(file_name, "rb") as f:
+                encoded = Binary(f.read())
+                print(file_name)
+                print(encoded)
+            coll.insert_one({"name":file_name, "file": encoded})
+        #form = UploadForm(method = 'GET')
+    #    user_id = session.get('user_id')
+    print("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFff")
+    print(form.pdf)
+    return render_template('docs.html', form = form, docs = coll)
+
+    #    return redirect(url_for('documents'))
+    #    filename = secure_filename(form.file.data.filename) # gets file names and makes it so that the file can be saved later on
+    #    docNames.append(filename) # list of fileNames
     #    new_internship.documents =
-        return render_template('docs.html', form = form, docs = docNames)
-def show_pdf():
-    print("pdf showing up now")
-
-
+#def show_pdf():
+    #print("pdf showing up now")
 @app.route('/remove/<string:_id>', methods=['GET', 'POST'])
 @login_required
 def remove(_id):
