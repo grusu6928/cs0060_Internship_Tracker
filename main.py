@@ -4,12 +4,12 @@ from flask import Flask
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, UserMixin
-from flask_table import Table, Col, ButtonCol
+from flask_table import Table, Col, ButtonCol, DateCol
 from flask import render_template, redirect, request, url_for, flash, session
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, DateTimeField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 from flask_table import Table, Col
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
@@ -40,6 +40,7 @@ class InternshipForm(FlaskForm):
     location = StringField('Location')
     notes = StringField('Notes')
     documents = StringField('Documents')
+    deadline = DateTimeField('Deadline (m-d-y)',[Optional()],format='%m-%d-%Y')
     status = SelectField('Status', choices=[
             ('none',''),
             ('watch_list', 'watch/follow up'),
@@ -49,7 +50,7 @@ class InternshipForm(FlaskForm):
 
 class Internship(object):
     def __init__(self, _id, user_id, company, medium=None, position=None, \
-                 location=None, notes=None, documents=None, status=None):
+                 location=None, notes=None, documents=None, status=None, deadline=None):
         self._id = _id
         self.user_id = user_id
         self.company = company
@@ -59,6 +60,7 @@ class Internship(object):
         self.notes = notes
         self.documents = documents
         self.status = status
+        self.deadline = deadline
     def watch_list(self):
         return self.status == 'watch_list'
     def not_applicable(self):
@@ -67,13 +69,14 @@ class Internship(object):
         return self.status == 'received_offer'
 
 class InternshipTable(Table):
-    classes = ['table', 'table-hover']
+    classes = ['table', 'table-hover', 'internship-table']
     company = Col('Company')
     medium = Col('Medium')
     position = Col('Position')
     location = Col('Location')
     notes = Col('Notes')
     documents = Col('Documents')
+    deadline = DateCol('Deadline', column_html_attrs={'class' : 'deadline-col'})
     edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'},
     column_html_attrs={'class' : 'button-col'})
     remove = ButtonCol('','remove', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-trash'},
@@ -245,14 +248,18 @@ def internships():
             location = form.location.data,
             notes = form.notes.data,
             documents = form.documents.data,
+            deadline = form.deadline.data,
             status = form.status.data
             )
         db.internships.insert_one(new_internship)
-        form.position.data = ''
         form.company.data = ''
+        form.medium.data = ''
+        form.position.data = ''
         form.location.data = ''
         form.notes.data = ''
         form.documents.data = ''
+        form.deadline.data = ''
+        form.status.data = ''
         return redirect(url_for('internships'))
     internships = list(db.internships.find({'user_id' : ObjectId(user_id)}))
     internships_obs = [Internship(**internship) for internship in internships]
@@ -286,24 +293,27 @@ def edit(_id):
             location = editform.location.data,
             notes = editform.notes.data,
             documents = editform.documents.data,
+            deadline = editform.deadline.data,
             status = editform.status.data
             )
         db.internships.update_one({"_id": ObjectId(_id)},
                                  {"$set": new_internship})
-        editform.position.data = ''
         editform.company.data = ''
+        editform.medium.data = ''
+        editform.position.data = ''
         editform.location.data = ''
         editform.notes.data = ''
         editform.documents.data = ''
+        editform.deadline.data = ''
+        editform.status.data = ''
         return redirect(url_for('internships'))
-    print("hi")
-    print(editform)
     editform.company.data = query['company']
     editform.medium.data = query['medium']
     editform.position.data = query['position']
     editform.location.data = query['location']
     editform.notes.data = query['notes']
     editform.documents.data = query['documents']
+    editform.deadline.data = query['deadline']
     editform.status.data = query['status']
     return render_template('internships.html',form=form, editform=editform, table=table)
 
