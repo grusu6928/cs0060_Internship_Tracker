@@ -296,8 +296,6 @@ def edit(_id):
         editform.notes.data = ''
         editform.documents.data = ''
         return redirect(url_for('internships'))
-    print("hi")
-    print(editform)
     editform.company.data = query['company']
     editform.medium.data = query['medium']
     editform.position.data = query['position']
