@@ -33,9 +33,10 @@ class RegistrationForm(FlaskForm):
 # the following classes are for flask-table 
 class InternshipTable(Table):
     classes = ['table', 'table-hover']
-    _id = Col('_id', show=False)
-    remove = ButtonCol('','remove', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-trash'})
-    edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'})
+    remove = ButtonCol('','remove', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-trash'},
+        column_html_attrs = {'class': 'button-col'})
+    edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'},
+        column_html_attrs = {'class': 'button-col'})
     company = Col('Company')
     position = Col('Position')
     location = Col('Location')
@@ -172,6 +173,7 @@ def internships():
         form.location.data = ''
         form.notes.data = ''
         form.documents.data = '' 
+        return redirect(url_for('internships'))
     internships = list(db.internships.find())
     for internship in internships: 
         internship['_id'] = str(internship['_id'])
@@ -191,14 +193,14 @@ def edit(_id):
     editform = InternshipForm(method='POST')
     form = InternshipForm(method='POST')
     if editform.validate_on_submit():
-        new_internship = dict(company = form.company.data, 
+        new_internship = dict(company = editform.company.data, 
              position = editform.position.data, 
              location = editform.location.data, 
              notes = editform.notes.data, 
              documents = editform.documents.data 
              )
-        db.internships.insert_one(new_internship)
-        db.internships.remove({'_id' : ObjectId(_id)})
+        db.internships.update_one({"_id": ObjectId(_id)}, 
+                                 {"$set": new_internship})
         editform.position.data = ''
         editform.company.data = ''
         editform.location.data = ''
