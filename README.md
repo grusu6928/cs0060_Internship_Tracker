@@ -5,3 +5,4 @@ Docker Readme:
 docker image build -t internship_tracker:0.1 .
 3. run the image: 
 docker run --name internship_tracker -p 5000:5000 -e APP_SECRET='test' --rm internship_tracker:0.1
+4.  
