@@ -51,10 +51,29 @@
 <script type="text/javascript">
   $('#ModalEditForm').modal({ show: false})
     $(document).ready(function () {
+
       let url = window.location;
       if (url.pathname.includes('edit')) {
         $('#ModalEditForm').modal({show : true})
       }
+<<<<<<< HEAD
     });
 </script>
+=======
+
+      $('.internship-table tr').each(function(){
+        var deadline = $(this).find('.deadline-col')
+        var mydate = new Date(deadline.html());
+        var FIVE_DAYS = 5 * 24 * 60 * 60 * 1000;
+        var difference = mydate - (new Date)
+        if ((difference < FIVE_DAYS) && (difference > 0)){
+          $(this).append('<td class="time"><span class="glyphicon">&#xe023;</span></td>')
+          $(this).css("background-color",'#ffa1a1');
+        }else{
+          $(this).append('<td class="time"></td>')
+        }
+      })
+    })
+</script> 
+>>>>>>> 7501961bdec1471ea387bc261b48c559e4d175b9
 {% endblock %}

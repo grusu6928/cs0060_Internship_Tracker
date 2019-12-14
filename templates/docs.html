@@ -14,10 +14,12 @@
 {{ wtf.quick_form(form) }}
 </div>
 <div class="images">
+
     {% for file in docs %}
     <td>
 <embed src=file width="300" height="200" alt="pdf" pluginspage="http://www.adobe.com/products/acrobat/readstep2.html">
     </td>
-    {% endfor $}
-{$ endblock %}
+    {% endfor %}
+{% endblock %}
+
 <!--<input id ="docLoad" type="file" name="upload" accept="application/pdf"/> -->
