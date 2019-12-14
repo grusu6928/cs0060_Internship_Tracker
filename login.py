@@ -57,12 +57,11 @@ docs = []
 
 class InternshipForm(FlaskForm):
     company = StringField('Company', [DataRequired(), Length(min=1, max=60)])
-    position = StringField('Position', [Length(min=1, max=60)])
-    location = StringField('Location', [Length(min=1, max=60)])
-    notes = StringField('Notes', [Length(min=1, max=1500)])
-    documents = StringField('Documents', [Length(min=1, max=60)])
+    position = StringField('Position')
+    location = StringField('Location')
+    notes = StringField('Notes')
+    documents = StringField('Documents')
     submit = SubmitField('Submit')
-
 
 #Populate the table
 internships_table = InternshipTable(internships)
@@ -159,6 +158,7 @@ def index():
 @login_required
 def internships():
     form = InternshipForm(method='POST')
+    editform = InternshipForm(method='POST')
     if form.validate_on_submit():
         new_internship = dict(company = form.company.data, 
              position = form.position.data, 
@@ -176,43 +176,45 @@ def internships():
     for internship in internships: 
         internship['_id'] = str(internship['_id'])
     table = InternshipTable(internships)
-    return render_template('internships.html', form=form, table=table)
+    return render_template('internships.html', form=form, table=table, editform = editform)
 
 @app.route('/remove/<string:_id>', methods=['GET', 'POST'])
+@login_required
 def remove(_id):
     db.internships.remove({'_id' : ObjectId(_id)})
     return redirect(url_for('internships'))
 
 @app.route('/edit/<string:_id>', methods=['GET', 'POST'])
+@login_required
 def edit(_id):
     query = db.internships.find_one({'_id' : ObjectId(_id)})
-    print(query);
-    form = InternshipForm(method='Post')
-    if form.validate_on_submit():
+    editform = InternshipForm(method='POST')
+    form = InternshipForm(method='POST')
+    if editform.validate_on_submit():
         new_internship = dict(company = form.company.data, 
-             position = form.position.data, 
-             location = form.location.data, 
-             notes = form.notes.data, 
-             documents = form.documents.data 
+             position = editform.position.data, 
+             location = editform.location.data, 
+             notes = editform.notes.data, 
+             documents = editform.documents.data 
              )
         db.internships.insert_one(new_internship)
         db.internships.remove({'_id' : ObjectId(_id)})
-        form.position.data = ''
-        form.company.data = ''
-        form.location.data = ''
-        form.notes.data = ''
-        form.documents.data = ''
-        internships = list(db.internships.find())
-        for internship in internships: 
-            internship['_id'] = str(internship['_id'])
-        table = InternshipTable(internships)
-        return render_template('internships.html', form=form, table=table)
-    form.position.data = query['position']
-    form.company.data = query['company']
-    form.location.data = query['location']
-    form.notes.data = query['notes']
-    form.documents.data = query['documents']
-    return render_template('edit.html', form=form)
+        editform.position.data = ''
+        editform.company.data = ''
+        editform.location.data = ''
+        editform.notes.data = ''
+        editform.documents.data = ''
+        return redirect(url_for('internships'))
+    editform.position.data = query['position']
+    editform.company.data = query['company']
+    editform.location.data = query['location']
+    editform.notes.data = query['notes']
+    editform.documents.data = query['documents']
+    internships = list(db.internships.find())
+    for internship in internships: 
+        internship['_id'] = str(internship['_id'])
+    table = InternshipTable(internships)
+    return render_template('internships.html',form=form, editform=editform, table=table)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
