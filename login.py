@@ -74,7 +74,7 @@ internships_table = InternshipTable(internships)
 assert 'APP_SECRET' in os.environ, 'need to set APP_SECRET environ variable.'
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/logindb'
+app.config['MONGO_URI'] = 'mongodb://dbserver:27017/logindb'
 app.config['SECRET_KEY'] = os.environ['APP_SECRET']
 mongo = PyMongo(app)
 db = mongo.db
@@ -228,4 +228,4 @@ def register():
     return render_template('register.html', form=form)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='internship.team', debug=True, port=5000)

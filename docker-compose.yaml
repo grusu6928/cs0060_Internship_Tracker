@@ -1,0 +1,27 @@
+version: '3.1'
+services:
+    nginx:
+        image: nginx
+        container_name: nginx
+        depends_on:
+            - flask
+        volumes:
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf
+        links:
+            - flask:internship
+        ports:
+            - 80:80
+    flask:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        image: flask
+        container_name: flask
+        environment:
+            - APP_SECRET=2MsRPk9ZXjUi6YEfLwrhM9ftVvgZpDhHWqm2gboIDLE=
+        links:
+            - mongo:dbserver
+    mongo:
+        image: mongo 
+        restart: always
+        
