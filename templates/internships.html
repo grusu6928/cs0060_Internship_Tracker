@@ -14,8 +14,6 @@
 {{ table }}
 </div>
 
-
-
 <!-- Modal HTML Markup -->
 <div id="ModalLoginForm" class="modal fade">
     <div class="modal-dialog" role="document">
@@ -25,76 +23,9 @@
             </div>
             <div class="modal-body">
               {{ wtf.quick_form(form) }}
-<!--
-                <form role="form" method="POST" action="/internships">
-                    <input type="hidden" name="_token" value="">
-                    <div class="form-group">
-                        <label class="control-label">Company</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="company" value="" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Position</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="position">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Location</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="location" value="">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Notes</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="notes" value="">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Documents</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="documents">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div>
-                            <button type="submit" class="btn btn-success">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
-                </form>
--->
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-
-
-<!--
-  {% if internship_list|length > 0 %}
-  <h3>Internships</h3>
-  <table>
-    <tr>
-      <th>Company</th>
-      <th>Position</th>
-      <th>Location</th>
-      <th>Notes</th>
-      <th>Docs</th>    
-    </tr>
-    {% for entry in internships_list %}
-    <tr>
-      <td></td>
-      <td>{{ entry[0] }}</td>
-      <td>{{ entry[1] }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  <input type="submit" value="Done">
-  {% endif %}
--->
   
 {% endblock %}
--->
