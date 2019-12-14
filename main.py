@@ -42,8 +42,8 @@ class InternshipForm(FlaskForm):
     documents = StringField('Documents')
     status = SelectField('Status', choices=[
             ('none',''),
-            ('watch_list', 'watch/follow up'), 
-            ('not_applicable', 'no longer applicable'), 
+            ('watch_list', 'watch/follow up'),
+            ('not_applicable', 'no longer applicable'),
             ('received_offer', 'received offer')])
     submit = SubmitField('Submit')
 
@@ -68,14 +68,16 @@ class Internship(object):
 
 class InternshipTable(Table):
     classes = ['table', 'table-hover']
-    remove = ButtonCol('','remove', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-trash'})
-    edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'})
     company = Col('Company')
     medium = Col('Medium')
     position = Col('Position')
     location = Col('Location')
     notes = Col('Notes')
     documents = Col('Documents')
+    edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'},
+    column_html_attrs={'class' : 'button-col'})
+    remove = ButtonCol('','remove', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-trash'},
+    column_html_attrs={'class' : 'button-col'})
 
     def get_tr_attrs(self, internship):
         if internship.watch_list():
@@ -86,7 +88,7 @@ class InternshipTable(Table):
             return {'class': 'success'}
         else:
             return {}
-    
+
 
 # make sure app secret exists
 # generate i.e. via openssl rand -base64 32
@@ -105,25 +107,25 @@ login_manager.login_view = 'login' # route or function where login occurs...
 
 # create model
 class User(UserMixin):
-    
+
     #initialize use with email and name. Initialized _id and password_hash to NOne
     def __init__(self, name, email):
         self.name = name
         self.email = email
         self._id = None
         self.password_hash = None
-    
-    # makes it so that you can access User.password as an attribute rather than 
+
+    # makes it so that you can access User.password as an attribute rather than
     # by calling a getter method
     @property
     def password(self):
         raise AttributeError('password is write-only')
-        
-    # makes it so that you can call User.password = "" rather than calling a setter method    
+
+    # makes it so that you can call User.password = "" rather than calling a setter method
     @password.setter
     def password(self, password):
         self.password_hash = generate_password_hash(password)
-    
+
     #verifies that the password passed in is equivalent to the user's password
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -131,10 +133,10 @@ class User(UserMixin):
     # overload for flask_login
     def get_id(self):
         return str(self._id) # reuse MongoDB id
-    
+
     # Given a key of name or email, searches db for User.
     # If not found, returns None.
-    # If found, returns new User object with _id, name, email and password_hash from db. 
+    # If found, returns new User object with _id, name, email and password_hash from db.
     def query(key):
         # pass in email or name as key
         doc = db.users.find_one({'$or' : [{'email' : key}, {'name' : key}]})
@@ -144,7 +146,7 @@ class User(UserMixin):
         u.password_hash=doc['password_hash']
         u._id = doc['_id']
         return u
-    
+
     # Given a user _id, searches db for user.
     # If not found, returns None.
     # If found, returns new User object with _id, name, email and password_hash from db.
@@ -161,7 +163,7 @@ class User(UserMixin):
         q = {'email' : self.email,
            'name' : self.name, 'password_hash' : self.password_hash}
 
-        # If _id field is not None, then user must have been added to Mongo already, 
+        # If _id field is not None, then user must have been added to Mongo already,
         # and update user's info.
         if self._id:
             db.users.update_one({'_id' : self._id}, {'$set' :q})
@@ -174,12 +176,12 @@ class User(UserMixin):
             # insert user's attributes into db, and retrieve _id given by Mongo as _id
             self._id = db.users.insert_one(q).inserted_id
 
-# edit this to be the internships page and return a template of the internships          
+# edit this to be the internships page and return a template of the internships
 @app.route('/')
 @login_required
 def index():
     return redirect(url_for('internships'))
-            
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
@@ -187,10 +189,10 @@ def load_user(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    
+
     if form.validate_on_submit():
         user = User.query(form.email_or_user.data)
-        
+
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             return redirect(url_for('internships'))
@@ -226,7 +228,7 @@ def logout():
     flash('You have been logged out')
     return redirect(url_for('login'))
 
-# edit this to be the internships page and return a template of the internships          
+# edit this to be the internships page and return a template of the internships
 @app.route('/internships', methods=['GET', 'POST'])
 @login_required
 def internships():
@@ -235,13 +237,13 @@ def internships():
     editform = InternshipForm(method='POST')
 
     if form.submit.data and form.validate_on_submit():
-        new_internship = dict(            
+        new_internship = dict(
             user_id = ObjectId(user_id),
             company = form.company.data,
             medium = form.medium.data,
-            position = form.position.data, 
-            location = form.location.data, 
-            notes = form.notes.data, 
+            position = form.position.data,
+            location = form.location.data,
+            notes = form.notes.data,
             documents = form.documents.data,
             status = form.status.data
             )
@@ -251,11 +253,11 @@ def internships():
         form.location.data = ''
         form.notes.data = ''
         form.documents.data = ''
-        return redirect(url_for('internships')) 
+        return redirect(url_for('internships'))
     internships = list(db.internships.find({'user_id' : ObjectId(user_id)}))
     internships_obs = [Internship(**internship) for internship in internships]
     table = InternshipTable(internships_obs)
-    
+
     return render_template('internships.html', form=form, table=table, editform=editform)
 
 @app.route('/remove/<string:_id>', methods=['GET', 'POST'])
@@ -275,18 +277,18 @@ def edit(_id):
     query = db.internships.find_one({'_id' : ObjectId(_id)})
     editform = InternshipForm(method='POST')
     form = InternshipForm(method='POST')
-    
+
     if editform.submit.data and editform.validate_on_submit():
-        new_internship = dict( 
+        new_internship = dict(
             company = editform.company.data,
             medium = editform.medium.data,
-            position = editform.position.data, 
-            location = editform.location.data, 
-            notes = editform.notes.data, 
+            position = editform.position.data,
+            location = editform.location.data,
+            notes = editform.notes.data,
             documents = editform.documents.data,
             status = editform.status.data
             )
-        db.internships.update_one({"_id": ObjectId(_id)}, 
+        db.internships.update_one({"_id": ObjectId(_id)},
                                  {"$set": new_internship})
         editform.position.data = ''
         editform.company.data = ''
@@ -313,4 +315,3 @@ def about():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
