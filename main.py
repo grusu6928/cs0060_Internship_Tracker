@@ -16,6 +16,15 @@ from bson.objectid import ObjectId
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+#imports for file upload
+from flask_wtf.file import FileField
+from werkzeug import secure_filename
+#from flask_uploads import UploadSet, configure_uploads,
+#G upload files
+class UploadForm(FlaskForm):
+    file = FileField()
+    #def __init__ (self, doc_id)
+    #self.doc_id = request.form.get("")
 class LoginForm(FlaskForm):
     email_or_user = StringField('Email or username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -259,6 +268,31 @@ def internships():
     table = InternshipTable(internships_obs)
 
     return render_template('internships.html', form=form, table=table, editform=editform)
+    #ALLOWED_EXTENSIONS = {'pdf','doc','docx'}
+#def allowed_file(filename):
+#    return '.' in filename and \
+#        filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
+
+docNames = []
+
+@app.route('/documents', methods = ['GET', 'POST'])
+@login_required
+def document_upload():
+    form = UploadForm()
+    user_id = session.get('user_id')
+    if form.submit_data and form.validate_on_submit():
+        user_docs = dict(
+            user_id = ObjectId(use_id),
+            #need to store in database the file itself
+            name = form.file.data
+        )
+        filename = secure_filename(form.file.data.filename) # gets file names and makes it so that the file can be saved later on
+        docNames.append(filename) # list of fileNames
+    #    new_internship.documents =
+        return render_template('docs.html', form = form, docs = docNames)
+def show_pdf():
+    print("pdf showing up now")
+
 
 @app.route('/remove/<string:_id>', methods=['GET', 'POST'])
 @login_required
