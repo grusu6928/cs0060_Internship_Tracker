@@ -247,7 +247,6 @@ def internships():
         db.internships.insert_one(new_internship)
         
     internships = list(db.internships.find({'user_id' : ObjectId(user_id)}))
-    print(internships)
     internships_obs = [Internship(**internship) for internship in internships]
     table = InternshipTable(internships_obs)
     
