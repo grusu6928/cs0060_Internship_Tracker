@@ -45,7 +45,8 @@ class InternshipForm(FlaskForm):
             ('none',''),
             ('watch_list', 'watch/follow up'),
             ('not_applicable', 'no longer applicable'),
-            ('received_offer', 'received offer')])
+            ('received_offer', 'received offer'),
+            ('to_apply', 'have not applied')])
     submit = SubmitField('Submit')
 
 class Internship(object):
@@ -92,6 +93,19 @@ class InternshipTable(Table):
         else:
             return {}
 
+class InternshipTableNA(Table):
+    classes = ['table', 'table-hover', 'internship-table-na']
+    company = Col('Company')
+    medium = Col('Medium')
+    position = Col('Position')
+    location = Col('Location')
+    notes = Col('Notes')
+    documents = Col('Documents')
+    deadline = DateCol('Deadline', column_html_attrs={'class' : 'deadline-col'})
+    edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'},
+    column_html_attrs={'class' : 'button-col'})
+    remove = ButtonCol('','remove', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-trash'},
+    column_html_attrs={'class' : 'button-col'})
 
 # make sure app secret exists
 # generate i.e. via openssl rand -base64 32
@@ -261,11 +275,17 @@ def internships():
         form.deadline.data = ''
         form.status.data = ''
         return redirect(url_for('internships'))
-    internships = list(db.internships.find({'user_id' : ObjectId(user_id)}))
-    internships_obs = [Internship(**internship) for internship in internships]
-    table = InternshipTable(internships_obs)
 
-    return render_template('internships.html', form=form, table=table, editform=editform)
+    not_applied_internships = list(db.internships.find({'$and' : [{'user_id' : ObjectId(user_id)},{'status' : 'to_apply'}]}))
+    applied_internships = list(db.internships.find({'$and' : [{'user_id' : ObjectId(user_id)},{'status' : { '$ne' : 'to_apply' }}]}))
+
+    internships_obs_1 = [Internship(**internship) for internship in not_applied_internships]
+    internships_obs_2 = [Internship(**internship) for internship in applied_internships]
+
+    not_applied_table = InternshipTableNA(internships_obs_1)
+    applied_table = InternshipTable(internships_obs_2)
+
+    return render_template('internships.html', form=form, applied_table=applied_table, not_applied_table=not_applied_table,editform=editform)
 
 @app.route('/remove/<string:_id>', methods=['GET', 'POST'])
 @login_required
@@ -277,9 +297,14 @@ def remove(_id):
 @login_required
 def edit(_id):
     user_id = session.get('user_id')
-    internships = list(db.internships.find({'user_id' : ObjectId(user_id)}))
-    internships_obs = [Internship(**internship) for internship in internships]
-    table = InternshipTable(internships_obs)
+    not_applied_internships = list(db.internships.find({'$and' : [{'user_id' : ObjectId(user_id)},{'status' : 'to_apply'}]}))
+    applied_internships = list(db.internships.find({'$and' : [{'user_id' : ObjectId(user_id)},{'status' : { '$ne' : 'to_apply' }}]}))
+
+    internships_obs_1 = [Internship(**internship) for internship in not_applied_internships]
+    internships_obs_2 = [Internship(**internship) for internship in applied_internships]
+
+    not_applied_table = InternshipTableNA(internships_obs_1)
+    applied_table = InternshipTable(internships_obs_2)
 
     query = db.internships.find_one({'_id' : ObjectId(_id)})
     editform = InternshipForm(method='POST')
@@ -315,7 +340,7 @@ def edit(_id):
     editform.documents.data = query['documents']
     editform.deadline.data = query['deadline']
     editform.status.data = query['status']
-    return render_template('internships.html',form=form, editform=editform, table=table)
+    return render_template('internships.html',form=form, editform=editform, applied_table=applied_table, not_applied_table=not_applied_table,)
 
 @app.route('/about')
 @login_required
