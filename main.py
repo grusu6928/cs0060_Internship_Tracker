@@ -44,7 +44,7 @@ class InternshipForm(FlaskForm):
     position = StringField('Position')
     location = StringField('Location')
     notes = StringField('Notes')
-    documents = StringField('Documents')
+    #documents = StringField('Documents')
     deadline = DateTimeField('Deadline (m-d-y)',[Optional()],format='%m-%d-%Y')
     status = SelectField('Status', choices=[
             ('none',''),
@@ -64,7 +64,7 @@ class Internship(object):
         self.position = position
         self.location = location
         self.notes = notes
-        self.documents = documents
+        #self.documents = documents
         self.status = status
         self.deadline = deadline
     def watch_list(self):
@@ -81,8 +81,8 @@ class InternshipTable(Table):
     position = Col('Position')
     location = Col('Location')
     notes = Col('Notes')
-    documents = Col('Documents')
-    deadline = DateCol('Deadline', column_html_attrs={'class' : 'deadline-col'})
+    #documents = Col('Documents')
+    #deadline = DateCol('Deadline', column_html_attrs={'class' : 'deadline-col'})
     edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'},
     column_html_attrs={'class' : 'button-col'})
     remove = ButtonCol('','remove', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-trash'},
@@ -118,7 +118,7 @@ class InternshipTableNA(Table):
     position = Col('Position')
     location = Col('Location')
     notes = Col('Notes')
-    documents = Col('Documents')
+    #documents = Col('Documents')
     deadline = DateCol('Deadline', column_html_attrs={'class' : 'deadline-col'})
     edit = ButtonCol('','edit', url_kwargs=dict(_id='_id'), button_attrs={'class' : 'glyphicon glyphicon-pencil'},
     column_html_attrs={'class' : 'button-col'})
@@ -280,7 +280,7 @@ def internships():
             position = form.position.data,
             location = form.location.data,
             notes = form.notes.data,
-            documents = form.documents.data,
+            #documents = form.documents.data,
             deadline = form.deadline.data,
             status = form.status.data
             )
@@ -290,7 +290,7 @@ def internships():
         form.position.data = ''
         form.location.data = ''
         form.notes.data = ''
-        form.documents.data = ''
+        #form.documents.data = ''
         form.deadline.data = ''
         form.status.data = ''
         return redirect(url_for('internships'))
@@ -336,7 +336,7 @@ def edit(_id):
             position = editform.position.data,
             location = editform.location.data,
             notes = editform.notes.data,
-            documents = editform.documents.data,
+            #documents = editform.documents.data,
             deadline = editform.deadline.data,
             status = editform.status.data
             )
@@ -347,7 +347,7 @@ def edit(_id):
         editform.position.data = ''
         editform.location.data = ''
         editform.notes.data = ''
-        editform.documents.data = ''
+        #editform.documents.data = ''
         editform.deadline.data = ''
         editform.status.data = ''
         return redirect(url_for('internships'))
@@ -356,7 +356,7 @@ def edit(_id):
     editform.position.data = query['position']
     editform.location.data = query['location']
     editform.notes.data = query['notes']
-    editform.documents.data = query['documents']
+    #editform.documents.data = query['documents']
     editform.deadline.data = query['deadline']
     editform.status.data = query['status']
     return render_template('internships.html',form=form, editform=editform, applied_table=applied_table, not_applied_table=not_applied_table,)
@@ -407,8 +407,8 @@ def get_pdf(pdf_id):
     user_id = session.get('user_id')
     filename = pdf_id
     # host_dir needs to change for each host. this will need to be updated for our server and for each local deployment case
-    host_dir = ''
-    directory = host_dir + 'cs0060_Internship_Tracker/static/client/' + user_id + '/'
+    host_dir = os.getcwd()
+    directory = host_dir + '/static/client/' + user_id + '/'
 
     try:
         return send_from_directory(directory=directory, filename=filename, as_attachment=True, mimetype='application/pdf')
