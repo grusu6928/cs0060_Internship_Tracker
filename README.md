@@ -1,5 +1,5 @@
 # cs0060_Internship_Tracker
-authors: jweissko, grusu, drosenb
+authors: jweissko, grusu, drozenb1
 First deployment: 12/15/2019
 
 Instructions for local deplyment:
