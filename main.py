@@ -18,6 +18,8 @@ from bson.objectid import ObjectId
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug import secure_filename
+from flask import send_file, send_from_directory, safe_join, abort
+from flask import current_app
 
 class LoginForm(FlaskForm):
     email_or_user = StringField('Email or username', validators=[DataRequired()])
@@ -377,16 +379,9 @@ def documents():
         filename = secure_filename(form.file.data.filename)
         doc_type = form.doc_type.data
         bytes_file = form.file.data.read()
-#        new_doc = {
-#            'user_id' : user_id,
-#            'filename' : filename,
-#            'file' : bytes_file
-#            }
-#        doc_list.append(new_doc)
         curr_dir = os.getcwd()
-        dir_path = curr_dir + "/" + user_id
+        dir_path = curr_dir + "/static/client/" + user_id + "/"
         if not os.path.exists(dir_path):
-            dir_path += "/"
             os.mkdir(dir_path)
         with open(dir_path + doc_type +'.pdf', 'wb+') as f:                    
             f.write(bytearray(bytes_file))
@@ -404,6 +399,18 @@ def documents():
     documents = list(db.documents.find({'user_id' : ObjectId(user_id)}))
 
     return render_template('documents.html', form=form, documents=documents)
+
+@app.route("/get-pdf/<pdf_id>")
+@login_required
+def get_pdf(pdf_id):
+    user_id = session.get('user_id')
+    filename = pdf_id
+    directory = '/Users/daniellerozenblit/Documents/GitHub/cs0060_Internship_Tracker/static/client/' + user_id + '/'
+
+    try:
+        return send_from_directory(directory=directory, filename=filename, as_attachment=True, mimetype='application/pdf')
+    except FileNotFoundError:
+        abort(404)
 
 @app.route('/about')
 @login_required
