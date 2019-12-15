@@ -99,7 +99,7 @@ assert 'APP_SECRET' in os.environ, 'need to set APP_SECRET environ variable.'
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ['APP_SECRET']
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/logindb'
+app.['MONGO_URI'] = 'mongodb://localhost:27017/logindb'
 mongo = PyMongo(app)
 db = mongo.db
 
@@ -324,4 +324,4 @@ def about():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='internship.team', debug=True, port=5000)
