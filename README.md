@@ -23,10 +23,41 @@ Instructions for remote deployment using docker and nginx:
 8. Go to internship.team and check that it is connecting
 
 Basic File Structure
+
+information files:
+README.md
+db_schema.md
+
+main application files: 
+run.sh
+main.py
+
+deployment files: 
+- Dockerfile
+- requirements.txt
+- nginx.config
+- docker-compose.yaml
+ 
+ Templates
+    - layout.html
+    - login.html
+    - internship.html
+    - register.html
+    - documents.html
+ 
+ static
+    - client
+          - clientfolder.txt
+    - images
+          - favicon.ico
+          - pdf_image.jpg
+          - pdf_image2.png
+    - internship_tracker.css
+    
 in the root directory, we have our main.py which handles the entire logic for Internship Tracker 
 In this directory is a templates directory that hosts all of our HTML files 
 In the directory above the templates, we have a static directory that hosts 2 directories client and images
 Client is used to store each user's pdfs upon upload 
 Images stores the images we used for our favicon and our internships page 
-Our dockerfiles and configs are stored here as well
 
+This general structure is repeated for the branches, with some minor exceptions, such as with the Docker branch containing dockerfiles that should not be present elsewhere 
