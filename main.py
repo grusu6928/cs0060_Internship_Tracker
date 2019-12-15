@@ -279,7 +279,6 @@ def internships():
     internships = list(db.internships.find({'user_id' : ObjectId(user_id)}))
     internships_obs = [Internship(**internship) for internship in internships]
     table = InternshipTable(internships_obs)
-
     return render_template('internships.html', form=form, table=table, editform=editform)
 
 @app.route('/remove/<string:_id>', methods=['GET', 'POST'])
@@ -363,13 +362,14 @@ def documents():
             os.mkdir(dir_path)
         with open(dir_path + doc_type +'.pdf', 'wb+') as f:                    
             f.write(bytearray(bytes_file))
+
         new_doc_for_mongo = {
             'user_id' : ObjectId(user_id),
             'filename' : filename,
             'doc_type' : doc_type,
             'file' : Binary(bytes_file)
             }
-#        print(new_doc)
+        db.documents.remove({'$and' : [{'user_id' : ObjectId(user_id)},{'doc_type' : doc_type}]})
         db.documents.insert_one(new_doc_for_mongo)
         form.file.data = ''
         return redirect(url_for('documents'))
