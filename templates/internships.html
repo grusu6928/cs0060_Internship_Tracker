@@ -1,3 +1,4 @@
+  
 {% extends "layout.html" %}
 {{ super() }}
 
@@ -15,7 +16,6 @@
 </div>
 
 
-
 <!-- Modal HTML Markup -->
 <div id="ModalLoginForm" class="modal fade">
     <div class="modal-dialog" role="document">
@@ -25,76 +25,51 @@
             </div>
             <div class="modal-body">
               {{ wtf.quick_form(form) }}
-<!--
-                <form role="form" method="POST" action="/internships">
-                    <input type="hidden" name="_token" value="">
-                    <div class="form-group">
-                        <label class="control-label">Company</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="company" value="" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Position</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="position">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Location</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="location" value="">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Notes</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="notes" value="">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label">Documents</label>
-                        <div>
-                            <input type="text" class="form-control input-lg" name="documents">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div>
-                            <button type="submit" class="btn btn-success">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
-                </form>
--->
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<!-- Modal HTML Markup -->
+<div id="ModalEditForm" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title">Edit Internship</h1>
+            </div>
+            <div class="modal-body">
+              {{ wtf.quick_form(editform) }}
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
-<!--
-  {% if internship_list|length > 0 %}
-  <h3>Internships</h3>
-  <table>
-    <tr>
-      <th>Company</th>
-      <th>Position</th>
-      <th>Location</th>
-      <th>Notes</th>
-      <th>Docs</th>    
-    </tr>
-    {% for entry in internships_list %}
-    <tr>
-      <td></td>
-      <td>{{ entry[0] }}</td>
-      <td>{{ entry[1] }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  <input type="submit" value="Done">
-  {% endif %}
--->
-  
 {% endblock %}
--->
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript">
+  $('#ModalEditForm').modal({ show: false})
+    $(document).ready(function () {
+
+      let url = window.location;
+      if (url.pathname.includes('edit')) {
+        $('#ModalEditForm').modal({show : true})
+      }
+
+      $('.internship-table tr').each(function(){
+        var deadline = $(this).find('.deadline-col')
+        var mydate = new Date(deadline.html());
+        var FIVE_DAYS = 5 * 24 * 60 * 60 * 1000;
+        var difference = mydate - (new Date)
+        if ((difference < FIVE_DAYS) && (difference > 0)){
+          $(this).append('<td class="time"><span class="glyphicon">&#xe023;</span></td>')
+          $(this).css("background-color",'#ffa1a1');
+        }else{
+          $(this).append('<td class="time"></td>')
+        }
+      })
+    })
+</script> 
+{% endblock %}
+  

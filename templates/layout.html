@@ -3,6 +3,7 @@
 
 {% block head %}
 {{ super() }}
+<link rel="stylesheet" type="text/css" href="../static/theme.css">
 {% endblock %}
 
 {% block title %}Layout Template{% endblock %}
@@ -24,19 +25,10 @@
             <ul class="nav navbar-nav">
               <li><a href="/internships">Internships</a></li>
               <li><a href="/documents">Documents</a></li>
-<!--
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Add<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li><a href="/internships">Add Internship</a></li>
-                  <li><a href="/documents">Add Document</a></li>
-                </ul>
-              </li>
--->
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="/login">Login<span class="sr-only">(current)</span></a></li>
-              <li><a href="/logout">Logout</a></li>
+<!--              <li><a href="/login">Login<span class="sr-only">(current)</span></a></li>-->
+              <li><a class="login-logout" href="/logout">Logout</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
@@ -47,13 +39,19 @@
 {{ super() }}
 <script type="text/javascript">
     $(document).ready(function () {
+      
       let url = window.location;
+      
       if (url.pathname != '/login' && url.pathname != '/logout') {
         $('ul.nav a[href="'+ url +'"]').parent().addClass('active');
         $('ul.nav a').filter(function() {
           return this.href == url;
         }).parent().addClass('active');
       }
+      
+      if (url.pathname === '/login' || url.pathname === '/register') {
+        $('a.login-logout').text("Login")
+      }
     });
-</script> 
+</script>
 {% endblock %}

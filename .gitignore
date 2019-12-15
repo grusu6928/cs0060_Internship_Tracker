@@ -1,2 +1,4 @@
 #This file ignores the files with the following extensions
 .*
+
+__pycache__*
