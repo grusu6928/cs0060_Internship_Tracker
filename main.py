@@ -103,9 +103,9 @@ class UploadForm(FlaskForm):
         FileRequired(),
         FileAllowed(['pdf'], 'File extension must be ".pdf"')
     ])
-    doc_type = RadioField('Document Type', 
+    doc_type = RadioField('Document Type',
                     default='resume',
-                    choices=[('resume','resume (most recent)'), 
+                    choices=[('resume','resume (most recent)'),
                     ('cover-letter', 'cover letter (generic)'),
                     ('transcript','transcript (most recent)')],
                     validators=[DataRequired()])
@@ -380,10 +380,11 @@ def documents():
         doc_type = form.doc_type.data
         bytes_file = form.file.data.read()
         curr_dir = os.getcwd()
-        dir_path = curr_dir + "/static/client/" + user_id + "/"
+        dir_path = curr_dir + "/static/client/" + user_id + "/" # appended / at the end of str
         if not os.path.exists(dir_path):
+            # do not need to change dir_path here 
             os.mkdir(dir_path)
-        with open(dir_path + doc_type +'.pdf', 'wb+') as f:                    
+        with open(dir_path + doc_type +'.pdf', 'wb+') as f:
             f.write(bytearray(bytes_file))
 
         new_doc_for_mongo = {
@@ -405,18 +406,19 @@ def documents():
 def get_pdf(pdf_id):
     user_id = session.get('user_id')
     filename = pdf_id
-    directory = '/Users/daniellerozenblit/Documents/GitHub/cs0060_Internship_Tracker/static/client/' + user_id + '/'
+    # host_dir needs to change for each host. this will need to be updated for our server and for each local deployment case
+    host_dir = ''
+    directory = host_dir + user_id + '/'
 
     try:
         return send_from_directory(directory=directory, filename=filename, as_attachment=True, mimetype='application/pdf')
     except FileNotFoundError:
         abort(404)
-
+# TODO info about ourselves
 @app.route('/about')
 @login_required
 def about():
     pass
 
-
 if __name__ == '__main__':
-    app.run(host='internship.team', debug=True, port=5000)
+    app.run(debug=True, port=5000)
