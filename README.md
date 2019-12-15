@@ -25,12 +25,12 @@ Instructions for remote deployment using docker and nginx:
 Basic File Structure
 
 information files:
-README.md
-db_schema.md
+-README.md
+-db_schema.md
 
 main application files: 
-run.sh
-main.py
+-run.sh
+-main.py
 
 deployment files: 
 - Dockerfile
