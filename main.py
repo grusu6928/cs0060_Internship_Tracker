@@ -8,13 +8,16 @@ from flask_table import Table, Col, ButtonCol, DateCol
 from flask import render_template, redirect, request, url_for, flash, session
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, DateTimeField
+from flask_wtf.file import FileField, FileAllowed, FileRequired
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, DateTimeField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional
 from flask_table import Table, Col
 from flask_pymongo import PyMongo
+from bson import Binary
 from bson.objectid import ObjectId
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug import secure_filename
 
 class LoginForm(FlaskForm):
     email_or_user = StringField('Email or username', validators=[DataRequired()])
@@ -92,14 +95,25 @@ class InternshipTable(Table):
         else:
             return {}
 
-
+class UploadForm(FlaskForm):
+    file = FileField('Upload PDF Document', validators=[
+        FileRequired(),
+        FileAllowed(['pdf'], 'File extension must be ".pdf"')
+    ])
+    doc_type = RadioField('Document Type', 
+                    default='resume',
+                    choices=[('resume','resume (most recent)'), 
+                    ('cover-letter', 'cover letter (generic)'),
+                    ('transcript','transcript (most recent)')],
+                    validators=[DataRequired()])
+    submit = SubmitField('Submit')
 # make sure app secret exists
 # generate i.e. via openssl rand -base64 32
 assert 'APP_SECRET' in os.environ, 'need to set APP_SECRET environ variable.'
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ['APP_SECRET']
-app.config['MONGO_URI'] = 'mongodb://dbserver:27017/logindb'
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/logindb'
 mongo = PyMongo(app)
 db = mongo.db
 
@@ -108,6 +122,7 @@ Bootstrap(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login' # route or function where login occurs...
 
+doc_list = []
 # create model
 class User(UserMixin):
 
@@ -316,6 +331,51 @@ def edit(_id):
     editform.deadline.data = query['deadline']
     editform.status.data = query['status']
     return render_template('internships.html',form=form, editform=editform, table=table)
+
+
+@app.route('/documents', methods=['GET', 'POST'])
+@login_required
+def documents():
+    form = UploadForm(method='POST')
+    user_id = session.get('user_id')
+#    with open('file.pdf', 'wb+') as f:
+#        cursor = db.documents.find()
+#        k = 0
+#        for i in cursor:
+#            if k == 2:
+#                f.write(i['file'])
+#            k += 1
+    if form.submit.data and form.validate_on_submit():
+        print(form.doc_type.data)
+        filename = secure_filename(form.file.data.filename)
+        doc_type = form.doc_type.data
+        bytes_file = form.file.data.read()
+#        new_doc = {
+#            'user_id' : user_id,
+#            'filename' : filename,
+#            'file' : bytes_file
+#            }
+#        doc_list.append(new_doc)
+        curr_dir = os.getcwd()
+        dir_path = curr_dir + "/" + user_id
+        if not os.path.exists(dir_path):
+            dir_path += "/"
+            os.mkdir(dir_path)
+        with open(dir_path + doc_type +'.pdf', 'wb+') as f:                    
+            f.write(bytearray(bytes_file))
+        new_doc_for_mongo = {
+            'user_id' : ObjectId(user_id),
+            'filename' : filename,
+            'doc_type' : doc_type,
+            'file' : Binary(bytes_file)
+            }
+#        print(new_doc)
+        db.documents.insert_one(new_doc_for_mongo)
+        form.file.data = ''
+        return redirect(url_for('documents'))
+    documents = list(db.documents.find({'user_id' : ObjectId(user_id)}))
+
+    return render_template('documents.html', form=form, documents=documents)
 
 @app.route('/about')
 @login_required
