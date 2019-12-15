@@ -54,9 +54,10 @@ deployment files:
           - pdf_image2.png
     - internship_tracker.css
     
-in the root directory, we have our main.py which handles the entire logic for Internship Tracker 
-In this directory is a templates directory that hosts all of our HTML files 
-In the directory above the templates, we have a static directory that hosts 2 directories client and images
+Short overview:
+main.py handles the logic for Internship Tracker 
+templates directory holds all  HTML files 
+static directory holds 2 directories client and images
 Client is used to store each user's pdfs upon upload 
 Images stores the images we used for our favicon and our internships page 
 
