@@ -1,5 +1,1 @@
-<<<<<<< HEAD
 This is the folder that holds the client pdfs
-=======
-This is the folder that holds the client pdfs
->>>>>>> 5d46726b62ffadde6aceaa4f2370cbc40645d31a

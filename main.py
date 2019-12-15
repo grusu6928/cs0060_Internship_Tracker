@@ -408,7 +408,7 @@ def get_pdf(pdf_id):
     filename = pdf_id
     # host_dir needs to change for each host. this will need to be updated for our server and for each local deployment case
     host_dir = ''
-    directory = host_dir + user_id + '/'
+    directory = host_dir + 'cs0060_Internship_Tracker/static/client/' + user_id + '/'
 
     try:
         return send_from_directory(directory=directory, filename=filename, as_attachment=True, mimetype='application/pdf')
