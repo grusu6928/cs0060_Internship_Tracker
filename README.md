@@ -1,18 +1,23 @@
 # cs0060_Internship_Tracker
-Docker Readme: 
-0. Create requirements.txt with list of modules that you will need to import using pip3
-1. Create Dockerfile as is done in this directory
-2. Create a docker image: 
-Ex. 
-docker image build -t internship_tracker:0.1 .
-  ~check that docker image is created by running docker images
-3. run the image: 
-Ex. 
-docker run --name internship_tracker -p 5000:5000 -e APP_SECRET='test' --rm internship_tracker:0.1
-4.  
+authors: jweissko, grusu, drosenb
+First deployment: 12/15/2019
 
-Notes: if runnign locally, need to use localhost in this line: 
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/logindb'
+Instructions for local deplyment:
 
-If running on the server for remote access, then change localhost to dbserver. The result should look like this: 
-app.config['MONGO_URI'] = 'mongodb://dbserver:27017/logindb'
+1. If deploying for use on the same computer, then in main.py, change 'dbserver' to 'localhost' in this line:
+     app.config['MONGO_URI'] = 'mongodb://dbserver:27017/logindb'
+2. Start the mongodb daemon:
+    mongod
+3. run the following command to runt the app:
+    ./run.sh
+
+Instructions for remote deployment using docker and nginx:
+1. Create requirements.txt using capitalization for modules as is correct in the command 'pip3 install <module_name>'
+2. Create Dockerfile (see our Dockerfile for an example)
+3. Create docker-compose.yaml file
+4. Upload the cs0060_Internship_Tracker to server (for example, by using git clone)
+6. Run the following command to create the docker images: 
+     docker-compose -f docker-compose.yaml build
+7. Run the following command to start the docker images:
+     docker-compose -f docker-compose.yaml up
+8. Go to internship.team and check that it is connecting
