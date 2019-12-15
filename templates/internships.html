@@ -6,13 +6,17 @@
 {% block content %}
 
 <div class="container">
-  <h3>Internships</h3>  
+  <h2>Internships</h3>  
   
   <button type="button" class="btn btn-default" data-toggle="modal" data-target="#ModalLoginForm">
     Add Internship
   </button>
+<h3>Applied</h3>  
+{{ applied_table }}
+<hr>
+<h3>Need to Apply</h3>  
+{{ not_applied_table }}
 
-{{ table }}
 </div>
 
 
@@ -57,7 +61,7 @@
         $('#ModalEditForm').modal({show : true})
       }
 
-      $('.internship-table tr').each(function(){
+      $('.internship-table-na tr').each(function(){
         var deadline = $(this).find('.deadline-col')
         var mydate = new Date(deadline.html());
         var FIVE_DAYS = 5 * 24 * 60 * 60 * 1000;
@@ -67,6 +71,9 @@
           $(this).css("background-color",'#ffa1a1');
         }else{
           $(this).append('<td class="time"></td>')
+          if (difference < 0){
+            $(this).addClass('info')
+          }
         }
       })
     })
