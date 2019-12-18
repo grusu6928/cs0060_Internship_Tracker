@@ -86,3 +86,4 @@ HTML static files:
   - pdf\_image.jpg
   - pdf\_image2.png
   - internship\_tracker.css 
+    
