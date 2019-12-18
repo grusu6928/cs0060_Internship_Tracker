@@ -42,6 +42,7 @@ Python3 and all Python3 modules listed in requirements.txt
      docker-compose -f docker-compose.yaml build
 4. Run the following command to start the docker images:
      docker-compose -f docker-compose.yaml up
+<<<<<<< HEAD
 5. Exec into the flask container as a root user with the following command:
      docker exec -u 0 -it <container_id> bash
 6. Inside the container, go to the home directory, and change the ownership of web recursively to web:
@@ -52,37 +53,48 @@ Python3 and all Python3 modules listed in requirements.txt
 7. On a web browser, go to internship.team and check that it is connecting. Try loggin in.
 Errors to watch out for: 
      If you cannot log in or register, probably the application cannot access Mongo. Check that you have changed localhost to dbserver if using remote deploymen. If that doesn't fix it, then check that the Mongo container is running. 
+ 
+=======
+8. Go to internship.team and check that it is connecting
 
-Repository file structure:
+Basic File Structure
 
-information:
+information files:
 - README.md
-- db\_schema.md
+- db_schema.md
 
-application file: 
+main application files: 
+- run.sh
 - main.py
 
-executable: 
-- run.sh
-
-deployment: 
+deployment files: 
 - Dockerfile
 - requirements.txt
 - nginx.config
 - docker-compose.yaml
  
-HTML Templates
-- layout.html
-- login.html
-- internship.html
-- register.html
-- documents.html
+ Templates
+    - layout.html
+    - login.html
+    - internship.html
+    - register.html
+    - documents.html
  
-HTML static files:
-- client
-  - clientfolder.txt
-- images
-  - favicon.ico
-  - pdf\_image.jpg
-  - pdf\_image2.png
-  - internship\_tracker.css 
+ static
+    - client
+          - clientfolder.txt
+    - images
+          - favicon.ico
+          - pdf_image.jpg
+          - pdf_image2.png
+    - internship_tracker.css
+    
+Short overview:
+main.py handles the logic for Internship Tracker 
+templates directory holds all  HTML files 
+static directory holds 2 directories client and images
+Client is used to store each user's pdfs upon upload 
+Images stores the images we used for our favicon and our internships page 
+
+This general structure is repeated for the branches, with some minor exceptions, such as with the Docker branch containing dockerfiles that should not be present elsewhere 
+>>>>>>> 5f1895cd415c3d35281c87a554d0a41fd8502ded
